@@ -161,10 +161,10 @@ export const mockAuthState = {
   // null = no autenticado
   // email del usuario para autenticado
   currentUserEmail: null as string | null,
-  
+
   // Estado de carga de autenticación
   isLoading: false,
-  
+
   // Estado de error en login
   loginError: null as string | null,
 };
@@ -179,17 +179,17 @@ export function getCurrentUser(): MockProfile | null {
 export function mockLogin(email: string, password: string): boolean {
   // Simular delay de red
   mockAuthState.isLoading = true;
-  
+
   // Validar que se proporcione email y password
   if (!email || !password) {
     mockAuthState.loginError = 'No se pudo iniciar sesión. Verifica tus datos.';
     mockAuthState.isLoading = false;
     return false;
   }
-  
+
   // Buscar si el usuario existe en los perfiles predefinidos
   const user = mockProfiles.find(p => p.email === email);
-  
+
   // Si el usuario existe en los perfiles predefinidos
   if (user) {
     if (user.status === 'disabled') {
@@ -197,14 +197,14 @@ export function mockLogin(email: string, password: string): boolean {
       mockAuthState.isLoading = false;
       return false;
     }
-    
+
     // Login exitoso para usuario predefinido
     mockAuthState.currentUserEmail = email;
     mockAuthState.loginError = null;
     mockAuthState.isLoading = false;
     return true;
   }
-  
+
   // Para Mock Level 0: aceptar cualquier email válido con contraseña
   // y crear un perfil temporal como 'member' activo
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -224,14 +224,14 @@ export function mockLogin(email: string, password: string): boolean {
         last_login_at: Date.now(),
       });
     }
-    
+
     // Login exitoso
     mockAuthState.currentUserEmail = email;
     mockAuthState.loginError = null;
     mockAuthState.isLoading = false;
     return true;
   }
-  
+
   // Email inválido
   mockAuthState.loginError = 'No se pudo iniciar sesión. Verifica tus datos.';
   mockAuthState.isLoading = false;
@@ -241,17 +241,17 @@ export function mockLogin(email: string, password: string): boolean {
 // Helper para simular magic link
 export function mockSendMagicLink(email: string): boolean {
   mockAuthState.isLoading = true;
-  
+
   // Validar que se proporcione email
   if (!email) {
     mockAuthState.loginError = 'No se pudo iniciar sesión. Verifica tus datos.';
     mockAuthState.isLoading = false;
     return false;
   }
-  
+
   // Buscar si el usuario existe en los perfiles predefinidos
   const user = mockProfiles.find(p => p.email === email);
-  
+
   // Si el usuario existe en los perfiles predefinidos
   if (user) {
     if (user.status === 'disabled') {
@@ -259,11 +259,11 @@ export function mockSendMagicLink(email: string): boolean {
       mockAuthState.isLoading = false;
       return false;
     }
-    
+
     mockAuthState.isLoading = false;
     return true;
   }
-  
+
   // Para Mock Level 0: aceptar cualquier email válido
   // y crear un perfil temporal como 'member' activo
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -283,11 +283,11 @@ export function mockSendMagicLink(email: string): boolean {
         last_login_at: Date.now(),
       });
     }
-    
+
     mockAuthState.isLoading = false;
     return true;
   }
-  
+
   // Email inválido
   mockAuthState.loginError = 'No se pudo iniciar sesión. Verifica tus datos.';
   mockAuthState.isLoading = false;
@@ -378,7 +378,7 @@ export const mockProjects: MockProject[] = [
     last_update_at: Date.now() - (1000 * 60 * 60 * 24 * 5), // Hace 5 días
     last_update_label: 'hace 5 días',
   },
-  
+
   // Proyectos migrados desde MOCK_PROJECTS - DISPONIBLES (LIVE)
   {
     id: '4',
@@ -429,16 +429,16 @@ export function getUserProjects(userEmail: string, userRole: HubRole): MockProje
   if (userRole === 'superadmin') {
     return mockProjects;
   }
-  
+
   // Buscar usuario por email en mockProfiles (UNIFICADO)
   const user = mockProfiles.find(u => u.email === userEmail);
   if (!user) return [];
-  
+
   // Member ve solo proyectos con acceso (can_view)
   const userAccess = mockUserProjectAccesses
     .filter(access => access.user_id === user.id && access.can_view)
     .map(access => access.project_slug);
-  
+
   return mockProjects.filter(project => userAccess.includes(project.slug));
 }
 
@@ -447,16 +447,16 @@ export function canUserAccessProject(userEmail: string, userRole: HubRole, proje
   if (userRole === 'superadmin') {
     return true;
   }
-  
+
   // Buscar usuario por email en mockProfiles (UNIFICADO)
   const user = mockProfiles.find(u => u.email === userEmail);
   if (!user) return false;
-  
+
   // Member necesita permiso explícito de visualización
   const access = mockUserProjectAccesses.find(
     a => a.user_id === user.id && a.project_slug === projectSlug
   );
-  
+
   return access?.can_view ?? false;
 }
 
@@ -465,18 +465,20 @@ export function canUserAdminProject(userEmail: string, userRole: HubRole, projec
   if (userRole === 'superadmin') {
     return true;
   }
-  
+
   // Buscar usuario por email en mockProfiles (UNIFICADO)
   const user = mockProfiles.find(u => u.email === userEmail);
   if (!user) return false;
-  
+
   // Member necesita permiso explícito de administración
   const access = mockUserProjectAccesses.find(
     a => a.user_id === user.id && a.project_slug === projectSlug
   );
-  
+
   return access?.can_admin ?? false;
 }
+
+// OUT_OF_MVP (health monitoring removed from MVP scope)
 
 export function getProjectHealth(projectSlug: string): HealthStatus | null {
   const metrics = mockProjectMetricsDaily.find(m => m.project_slug === projectSlug);
@@ -519,7 +521,7 @@ function generateMockToken(): string {
 export function createSsoSession(projectSlug: string, userEmail: string): MockSsoSession {
   const token = generateMockToken();
   const expiresAt = Date.now() + (5 * 60 * 1000); // 5 minutos desde ahora
-  
+
   const session: MockSsoSession = {
     token,
     project_slug: projectSlug,
@@ -527,10 +529,10 @@ export function createSsoSession(projectSlug: string, userEmail: string): MockSs
     expires_at: expiresAt,
     status: 'active',
   };
-  
+
   // Agregar a la lista (simula persistencia)
   mockSsoSessions.push(session);
-  
+
   return session;
 }
 
@@ -540,25 +542,25 @@ export function validateSsoSession(token: string): { valid: boolean; reason?: st
   if (mockSsoState.forceExpired) {
     return { valid: false, reason: 'expired' };
   }
-  
+
   if (mockSsoState.forceInvalid) {
     return { valid: false, reason: 'invalid' };
   }
-  
+
   const session = mockSsoSessions.find(s => s.token === token);
-  
+
   if (!session) {
     return { valid: false, reason: 'invalid' };
   }
-  
+
   if (session.status === 'invalid') {
     return { valid: false, reason: 'invalid' };
   }
-  
+
   if (session.status === 'expired' || Date.now() > session.expires_at) {
     return { valid: false, reason: 'expired' };
   }
-  
+
   return { valid: true };
 }
 
@@ -639,15 +641,15 @@ export function getAllHubProjects(): MockProject[] {
 // Verificar si usuario puede acceder al tab Superadmin
 export function canAccessSuperadminTab(user: MockProfile | null): boolean {
   if (!user || user.status === 'disabled') return false;
-  
+
   // Superadmin siempre puede
   if (user.hub_role === 'superadmin') return true;
-  
+
   // Admin con al menos un permiso delegado puede
   if (user.hub_role === 'admin' && user.permissions) {
     return user.permissions.home_editor || user.permissions.hub_projects_editor;
   }
-  
+
   return false;
 }
 
@@ -672,15 +674,15 @@ export function canManageUsersAndAccess(user: MockProfile | null): boolean {
 // Verificar si usuario tiene acceso a un proyecto específico (nueva versión)
 export function hasProjectAccess(user: MockProfile | null, projectSlug: string): boolean {
   if (!user || user.status === 'disabled') return false;
-  
+
   // Superadmin tiene acceso a todo
   if (user.hub_role === 'superadmin') return true;
-  
+
   // Verificar en mockProjectAccess
   const access = mockProjectAccess.find(
     a => a.user_email === user.email && a.project_slug === projectSlug
   );
-  
+
   return access?.can_open ?? false;
 }
 
@@ -985,11 +987,11 @@ export function getUserById(userId: string): MockProfile | null {
 }
 
 // NUEVO: Crear usuario en mockProfiles (unificado)
-export function createUser(data: { 
-  email: string; 
-  full_name: string; 
+export function createUser(data: {
+  email: string;
+  full_name: string;
   username?: string | null;
-  hub_role: 'superadmin' | 'member' 
+  hub_role: 'superadmin' | 'member'
 }): MockProfile {
   const newUser: MockProfile = {
     id: Date.now().toString(),
@@ -1002,14 +1004,14 @@ export function createUser(data: {
     created_at: Date.now(),
     last_login_at: null,
   };
-  
+
   mockProfiles.push(newUser);
   return newUser;
 }
 
 // NUEVO: Actualizar usuario en mockProfiles
 export function updateUser(
-  userId: string, 
+  userId: string,
   updates: Partial<Pick<MockProfile, 'full_name' | 'username' | 'hub_role' | 'status'>>
 ): boolean {
   const userIndex = mockProfiles.findIndex(u => u.id === userId);
@@ -1036,7 +1038,7 @@ export function updateUserProfile(
         return false; // Username ya existe
       }
     }
-    
+
     Object.assign(mockProfiles[userIndex], updates);
     return true;
   }
@@ -1048,7 +1050,7 @@ export function deleteUser(userId: string): boolean {
   const index = mockProfiles.findIndex(u => u.id === userId);
   if (index >= 0) {
     mockProfiles.splice(index, 1);
-    
+
     // Eliminar también sus accesos a proyectos
     const accessesToRemove = mockUserProjectAccesses.filter(a => a.user_id === userId);
     accessesToRemove.forEach(access => {
@@ -1057,7 +1059,7 @@ export function deleteUser(userId: string): boolean {
         mockUserProjectAccesses.splice(accessIndex, 1);
       }
     });
-    
+
     return true;
   }
   return false;
@@ -1075,7 +1077,7 @@ export function updateUserProjectAccess(
   const existingIndex = mockUserProjectAccesses.findIndex(
     a => a.user_id === userId && a.project_slug === projectSlug
   );
-  
+
   if (access.can_view) {
     // Crear o actualizar acceso
     if (existingIndex >= 0) {
