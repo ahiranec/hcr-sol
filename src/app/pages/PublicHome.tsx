@@ -5,17 +5,47 @@ import 'slick-carousel/slick/slick-theme.css';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 import { MainLayout } from '../components/MainLayout';
 import { ProjectCard } from '../components/ProjectCard';
-import { mockProjects, mockUiState, getCurrentUser, mockLogout } from '@/data/mocks';
+import { projectsRepo, type MockProject } from '@/data/repos/projectsRepo';
+import { authRepo, type MockProfile } from '@/data/repos/authRepo';
 import hcrSolLogo from '@/assets/4cc5722396a543fc4af4b21d4f57e4ae31cf2825.png';
+import { useState, useEffect } from 'react';
 
 export function PublicHome() {
   const navigate = useNavigate();
-  const user = getCurrentUser();
-  const developmentProjects = mockProjects.filter(p => p.show_in_home && p.status === 'in_development');
-  const liveProjects = mockProjects.filter(p => p.show_in_home && p.status === 'live');
+  const [user, setUser] = useState<MockProfile | null>(null);
+  const [developmentProjects, setDevelopmentProjects] = useState<MockProject[]>([]);
+  const [liveProjects, setLiveProjects] = useState<MockProject[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  const handleLogout = () => {
-    mockLogout();
+  useEffect(() => {
+    async function loadData() {
+      try {
+        if (authRepo.getUiState().loading) {
+          return; // Let mock UI state decide
+        }
+
+        const currentUser = await authRepo.getCurrentUser();
+        setUser(currentUser);
+
+        const allProjects = await projectsRepo.getMockProjects();
+        setDevelopmentProjects(allProjects.filter(p => p.show_in_home && p.status === 'in_development'));
+        setLiveProjects(allProjects.filter(p => p.show_in_home && p.status === 'live'));
+        
+        if (authRepo.getUiState().error) {
+          setError(true);
+        }
+        setIsLoading(false);
+      } catch (err) {
+        setError(true);
+        setIsLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
+  const handleLogout = async () => {
+    await authRepo.logout();
     navigate('/');
   };
 
@@ -33,7 +63,7 @@ export function PublicHome() {
   };
 
   // Estados simulados
-  if (mockUiState.loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-white">
         <header className="bg-white border-b border-gray-200">
@@ -57,7 +87,7 @@ export function PublicHome() {
     );
   }
 
-  if (mockUiState.error) {
+  if (error) {
     return (
       <div className="min-h-screen bg-white">
         <header className="bg-white border-b border-gray-200">
@@ -127,7 +157,7 @@ export function PublicHome() {
           <Slider {...heroSliderSettings}>
             {/* Slide 1: HCR Sol - Soluciones integrales tecnológicas */}
             <div className="relative h-[400px] md:h-[500px]">
-              <ImageWithFallback
+               <ImageWithFallback
                 src="https://images.unsplash.com/photo-1755029553373-87246d245ec1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzdW5yaXNlJTIwdGVjaG5vbG9neSUyMGdyYWRpZW50JTIwb3JhbmdlfGVufDF8fHx8MTc3MTExNjM3MHww&ixlib=rb-4.1.0&q=80&w=1080"
                 alt="HCR Sol - Soluciones Tecnológicas"
                 className="w-full h-full object-cover brightness-75"

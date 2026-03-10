@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { MainLayout } from '../components/MainLayout';
-import { mockLogin, mockAuthState } from '@/data/mocks';
+import { authRepo } from '@/data/repos/authRepo';
 import hcrSolLogo from '@/assets/4cc5722396a543fc4af4b21d4f57e4ae31cf2825.png';
 
 
@@ -20,17 +20,18 @@ export function Login() {
     setError(null);
     setIsLoading(true);
 
-    // Simular delay de red
-    await new Promise(resolve => setTimeout(resolve, 800));
+    try {
+      const success = await authRepo.login(email, password);
 
-    const success = mockLogin(email, password);
-
-    setIsLoading(false);
-
-    if (success) {
-      navigate(redirect);
-    } else {
-      setError(mockAuthState.loginError);
+      if (success) {
+        navigate(redirect);
+      } else {
+        setError(authRepo.getAuthState().loginError || 'Error al iniciar sesión');
+      }
+    } catch (err) {
+      setError('Ocurrió un error inesperado al iniciar sesión.');
+    } finally {
+      setIsLoading(false);
     }
   };
 

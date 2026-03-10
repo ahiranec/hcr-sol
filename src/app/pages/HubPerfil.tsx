@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { getCurrentUser, updateUserProfile } from '@/data/mocks';
+import { authRepo } from '@/data/repos/authRepo';
+import { profilesRepo } from '@/data/repos/profilesRepo';
 import { toast } from 'sonner';
 
 export function HubPerfil() {
-  const user = getCurrentUser();
+  const user = authRepo.getCurrentUserSync();
   const [username, setUsername] = useState(user?.username ?? '');
   const [fullName, setFullName] = useState(user?.full_name ?? '');
   const [isEditing, setIsEditing] = useState(false);
@@ -20,7 +21,7 @@ export function HubPerfil() {
   const handleSave = () => {
     if (!user.id) return;
 
-    const success = updateUserProfile(user.id, {
+    const success = profilesRepo.updateUserProfile(user.id, {
       username: username.trim() || null,
       full_name: fullName.trim(),
     });

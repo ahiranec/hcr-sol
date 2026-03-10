@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { getUserById, getUserProjectAccesses, updateUserProjectAccess, mockProjects } from '@/data/mocks';
+import { profilesRepo } from '@/data/repos/profilesRepo';
+import { accessesRepo } from '@/data/repos/accessesRepo';
+import { projectsRepo } from '@/data/repos/projectsRepo';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 import { Eye, Shield, Check, ArrowLeft } from 'lucide-react';
 
@@ -8,8 +10,8 @@ export function UsersManagerAccesos() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
 
-  const user = getUserById(id!);
-  const [userAccesses, setUserAccesses] = useState(getUserProjectAccesses(id!));
+  const user = profilesRepo.getUserByIdSync(id!);
+  const [userAccesses, setUserAccesses] = useState(accessesRepo.getUserProjectAccessesSync(id!));
 
   if (!user) {
     return (
@@ -85,24 +87,24 @@ export function UsersManagerAccesos() {
       // Toggle view access
       if (current?.can_view) {
         // Desactivar todo
-        updateUserProjectAccess(id!, projectSlug, { can_view: false, can_admin: false });
+        accessesRepo.updateUserProjectAccess(id!, projectSlug, { can_view: false, can_admin: false });
       } else {
         // Activar solo view
-        updateUserProjectAccess(id!, projectSlug, { can_view: true, can_admin: false });
+        accessesRepo.updateUserProjectAccess(id!, projectSlug, { can_view: true, can_admin: false });
       }
     } else {
       // Toggle admin access (requiere can_view)
       if (current?.can_admin) {
         // Desactivar admin, mantener view
-        updateUserProjectAccess(id!, projectSlug, { can_view: true, can_admin: false });
+        accessesRepo.updateUserProjectAccess(id!, projectSlug, { can_view: true, can_admin: false });
       } else {
         // Activar admin (y view automáticamente)
-        updateUserProjectAccess(id!, projectSlug, { can_view: true, can_admin: true });
+        accessesRepo.updateUserProjectAccess(id!, projectSlug, { can_view: true, can_admin: true });
       }
     }
 
     // Actualizar estado local
-    setUserAccesses(getUserProjectAccesses(id!));
+    setUserAccesses(accessesRepo.getUserProjectAccessesSync(id!));
   };
 
   const handleSave = () => {
@@ -150,7 +152,7 @@ export function UsersManagerAccesos() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {mockProjects.map((project) => {
+            {projectsRepo.getMockProjectsSync().map((project) => {
               const access = hasAccess(project.slug);
               return (
                 <tr key={project.slug} className="hover:bg-gray-50 transition-colors">

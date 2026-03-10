@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { Plus, Pencil, Trash2, Key, UserCheck, UserX } from 'lucide-react';
-import { getAllUsers, deleteUser, type MockUser } from '@/data/mocks';
+import { profilesRepo, type MockUser } from '@/data/repos/profilesRepo';
 
 export function UsersManagerLista() {
-  const [users, setUsers] = useState<MockUser[]>(getAllUsers());
+  const [users, setUsers] = useState<MockUser[]>(profilesRepo.getAllUsersSync());
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
 
   const handleDelete = (userId: string) => {
@@ -16,8 +16,8 @@ export function UsersManagerLista() {
       return;
     }
 
-    if (deleteUser(userId)) {
-      setUsers(getAllUsers());
+    if (profilesRepo.deleteUser(userId)) {
+      setUsers(profilesRepo.getAllUsersSync());
       setShowDeleteConfirm(null);
       alert('✅ Usuario eliminado correctamente');
     }

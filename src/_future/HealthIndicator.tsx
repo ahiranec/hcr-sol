@@ -1,5 +1,5 @@
 import { cn } from '@/app/components/ui/utils';
-import { HealthStatus } from '@/data/mocks';
+type HealthStatus = 'good' | 'warning' | 'critical' | 'unknown';
 
 interface HealthIndicatorProps {
   status: HealthStatus | null;
@@ -17,7 +17,7 @@ export function HealthIndicator({ status, size = 'md', showLabel = true }: Healt
   };
 
   const config = statusConfig[status];
-  
+
   const dotSize = size === 'sm' ? 'w-1.5 h-1.5' : 'w-2 h-2';
   const textSize = size === 'sm' ? 'text-xs' : 'text-sm';
 

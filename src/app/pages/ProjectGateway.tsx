@@ -2,16 +2,9 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router';
 import { HubLayout } from '../components/HubLayout';
 import { ProjectStatusBadge } from '../components/ProjectStatusBadge';
-import {
-  getCurrentUser,
-  mockProjects,
-  canUserAccessProject,
-  mockUiState,
-  PROJECT_COPY,
-  createSsoSession,
-  buildSsoAdminUrl,
-  mockSsoState,
-} from '@/data/mocks';
+import { authRepo } from '@/data/repos/authRepo';
+import { projectsRepo } from '@/data/repos/projectsRepo';
+import { accessesRepo } from '@/data/repos/accessesRepo';
 
 export function ProjectGateway() {
   const { slug } = useParams<{ slug: string }>();
@@ -19,7 +12,7 @@ export function ProjectGateway() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSsoLoading, setIsSsoLoading] = useState(false);
   const [ssoError, setSsoError] = useState<string | null>(null);
-  const user = getCurrentUser();
+  const user = authRepo.getCurrentUserSync();
 
   // Simular carga
   useEffect(() => {
@@ -31,7 +24,7 @@ export function ProjectGateway() {
   }, [slug]);
 
   // Estado de carga
-  if (isLoading || mockUiState.loading) {
+  if (isLoading || authRepo.getUiState().loading) {
     return (
       <HubLayout>
         <div className="flex items-center justify-center py-24">
@@ -45,7 +38,7 @@ export function ProjectGateway() {
   }
 
   // Estado de error genérico
-  if (mockUiState.error) {
+  if (authRepo.getUiState().error) {
     return (
       <HubLayout>
         <div className="flex items-center justify-center py-24">
@@ -68,7 +61,7 @@ export function ProjectGateway() {
   }
 
   // Buscar proyecto
-  const project = mockProjects.find(p => p.slug === slug);
+  const project = projectsRepo.getMockProjectsSync().find(p => p.slug === slug);
 
   // Proyecto no encontrado
   if (!project) {
@@ -90,7 +83,7 @@ export function ProjectGateway() {
   }
 
   // Usuario sin acceso
-  const hasAccess = canUserAccessProject(user.email, user.hub_role, slug);
+  const hasAccess = accessesRepo.canUserAccessProjectSync(user.email, user.hub_role, slug);
   if (!hasAccess) {
     return (
       <HubLayout>
@@ -110,7 +103,7 @@ export function ProjectGateway() {
     );
   }
 
-  const projectCopy = PROJECT_COPY[project.slug];
+  const projectCopy = projectsRepo.getProjectCopySync()[project.slug];
 
   // Handler para SSO Light
   const handleOpenAdminPanelWithSso = async () => {

@@ -1,22 +1,54 @@
 import { useState, useEffect } from 'react';
 import { HubProjectCard } from '../components/HubProjectCard';
-import { getCurrentUser, getAllHubProjects, canUserAccessProject, canUserAdminProject, mockUiState } from '@/data/mocks';
+import { authRepo, type MockProfile } from '@/data/repos/authRepo';
+import { projectsRepo, type MockProject } from '@/data/repos/projectsRepo';
+import { accessesRepo } from '@/data/repos/accessesRepo';
 
 export function Hub() {
   const [isLoading, setIsLoading] = useState(true);
-  const user = getCurrentUser();
+  const [user, setUser] = useState<MockProfile | null>(null);
+  const [allProjects, setAllProjects] = useState<MockProject[]>([]);
+  const [permissionsMap, setPermissionsMap] = useState<Record<string, { hasAccess: boolean, canAdmin: boolean }>>({});
+  const [error, setError] = useState(false);
 
-  // Simular verificación de sesión
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
+    async function loadData() {
+      try {
+        if (authRepo.getUiState().loading) {
+          return;
+        }
 
-    return () => clearTimeout(timer);
+        const currentUser = await authRepo.getCurrentUser();
+        if (currentUser) {
+          setUser(currentUser);
+          const projects = await projectsRepo.getAllHubProjects();
+          setAllProjects(projects);
+
+          const perms: Record<string, { hasAccess: boolean, canAdmin: boolean }> = {};
+          for (const project of projects) {
+            const hasAccess = await accessesRepo.canUserAccessProject(currentUser.email, currentUser.hub_role, project.slug);
+            const canAdmin = await accessesRepo.canUserAdminProject(currentUser.email, currentUser.hub_role, project.slug);
+            perms[project.slug] = { hasAccess, canAdmin };
+          }
+          setPermissionsMap(perms);
+        }
+
+        if (authRepo.getUiState().error) {
+          setError(true);
+        }
+        
+        setIsLoading(false);
+      } catch (err) {
+        setError(true);
+        setIsLoading(false);
+      }
+    }
+    
+    loadData();
   }, []);
 
   // Estado de carga inicial
-  if (isLoading || mockUiState.loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center py-24">
         <div className="text-center">
@@ -28,7 +60,7 @@ export function Hub() {
   }
 
   // Estado de error
-  if (mockUiState.error) {
+  if (error) {
     return (
       <div className="flex items-center justify-center py-24">
         <div className="text-center max-w-md px-4">
@@ -48,9 +80,6 @@ export function Hub() {
     return null; // ProtectedRoute ya maneja esto
   }
 
-  // NUEVA LÓGICA: Obtener TODOS los proyectos (no filtrar)
-  const allProjects = getAllHubProjects();
-
   return (
     <div>
       <h2 className="text-2xl font-bold text-gray-900 mb-6">Mis proyectos</h2>
@@ -63,15 +92,14 @@ export function Hub() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {allProjects.map((project) => {
-            const userHasAccess = canUserAccessProject(user.email, user.hub_role, project.slug);
-            const userCanAdmin = canUserAdminProject(user.email, user.hub_role, project.slug);
+            const perms = permissionsMap[project.slug] || { hasAccess: false, canAdmin: false };
             
             return (
               <HubProjectCard 
                 key={project.id} 
                 project={project}
-                hasAccess={userHasAccess}
-                canAdmin={userCanAdmin}
+                hasAccess={perms.hasAccess}
+                canAdmin={perms.canAdmin}
               />
             );
           })}

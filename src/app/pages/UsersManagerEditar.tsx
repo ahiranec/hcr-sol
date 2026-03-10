@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from 'react-router';
 import { UserForm, type UserFormData } from '../components/UserForm';
-import { getUserById, updateUser } from '@/data/mocks';
+import { profilesRepo } from '@/data/repos/profilesRepo';
 import { ArrowLeft } from 'lucide-react';
 
 export function UsersManagerEditar() {
@@ -8,7 +8,7 @@ export function UsersManagerEditar() {
   const { id } = useParams<{ id: string }>();
 
   // Buscar el usuario
-  const user = getUserById(id!);
+  const user = profilesRepo.getUserByIdSync(id!);
 
   if (!user) {
     return (
@@ -43,7 +43,7 @@ export function UsersManagerEditar() {
     }
 
     // Actualizar el usuario
-    const success = updateUser(id!, {
+    const success = profilesRepo.updateUser(id!, {
       full_name: data.full_name,
       hub_role: data.hub_role,
       status: data.status,

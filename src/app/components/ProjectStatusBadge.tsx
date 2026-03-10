@@ -1,5 +1,5 @@
 import { cn } from '@/app/components/ui/utils';
-import { ProjectStatus } from '@/data/mocks';
+import { type ProjectStatus } from '@/data/repos/projectsRepo';
 
 interface ProjectStatusBadgeProps {
   status: ProjectStatus;

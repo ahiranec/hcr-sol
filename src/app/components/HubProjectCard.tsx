@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router';
 import { ProjectStatusBadge } from './ProjectStatusBadge';
 import { ImageWithFallback } from './figma/ImageWithFallback';
-import { MockProject } from '@/data/mocks';
+import { type MockProject } from '@/data/repos/projectsRepo';
 import { Globe, Settings } from 'lucide-react';
 
 interface HubProjectCardProps {

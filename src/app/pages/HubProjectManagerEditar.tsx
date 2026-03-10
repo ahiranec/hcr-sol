@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from 'react-router';
 import { ProjectForm, type ProjectFormData } from '../components/ProjectForm';
-import { mockProjects } from '@/data/mocks';
+import { projectsRepo } from '@/data/repos/projectsRepo';
 import { ArrowLeft } from 'lucide-react';
 
 export function HubProjectManagerEditar() {
@@ -8,7 +8,7 @@ export function HubProjectManagerEditar() {
   const { slug } = useParams<{ slug: string }>();
 
   // Buscar el proyecto
-  const project = mockProjects.find(p => p.slug === slug);
+  const project = projectsRepo.getMockProjectsSync().find(p => p.slug === slug);
 
   if (!project) {
     return (
@@ -31,10 +31,10 @@ export function HubProjectManagerEditar() {
 
   const handleSubmit = (data: ProjectFormData) => {
     // Actualizar el proyecto en el mock
-    const index = mockProjects.findIndex(p => p.slug === slug);
+    const index = projectsRepo.getMockProjectsSync().findIndex(p => p.slug === slug);
     if (index >= 0) {
-      mockProjects[index] = {
-        ...mockProjects[index],
+      projectsRepo.getMockProjectsSync()[index] = {
+        ...projectsRepo.getMockProjectsSync()[index],
         name: data.name,
         status: data.status,
         public_url: data.publicUrl,

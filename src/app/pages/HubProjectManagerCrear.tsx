@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router';
 import { ProjectForm, type ProjectFormData } from '../components/ProjectForm';
-import { mockProjects } from '@/data/mocks';
+import { projectsRepo } from '@/data/repos/projectsRepo';
 import { ArrowLeft } from 'lucide-react';
 
 export function HubProjectManagerCrear() {
@@ -8,7 +8,7 @@ export function HubProjectManagerCrear() {
 
   const handleSubmit = (data: ProjectFormData) => {
     // Verificar que no exista un proyecto con el mismo slug
-    const exists = mockProjects.find(p => p.slug === data.slug);
+    const exists = projectsRepo.getMockProjectsSync().find(p => p.slug === data.slug);
     if (exists) {
       alert('❌ Ya existe un proyecto con ese slug');
       return;
@@ -32,7 +32,7 @@ export function HubProjectManagerCrear() {
     };
 
     // Agregar al mock (en producción sería una llamada a API)
-    mockProjects.push(newProject);
+    projectsRepo.getMockProjectsSync().push(newProject);
 
     alert('✅ Proyecto creado correctamente');
     navigate('/hub/superadmin/hub-project-manager');

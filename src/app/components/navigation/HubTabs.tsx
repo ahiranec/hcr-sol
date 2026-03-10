@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router';
 import { ChevronDown, ChevronRight, FolderKanban, User, Home as HomeIcon, UserCircle } from 'lucide-react';
-import { canAccessSuperadminTab, type MockProfile } from '@/data/mocks';
+import { profilesRepo, type MockProfile } from '@/data/repos/profilesRepo';
 
 interface HubTabsProps {
   user: MockProfile;
@@ -9,7 +9,7 @@ interface HubTabsProps {
 
 export function HubTabs({ user }: HubTabsProps) {
   const location = useLocation();
-  const showSuperadminTab = canAccessSuperadminTab(user);
+  const showSuperadminTab = profilesRepo.canAccessSuperadminTabSync(user);
   const [isSuperadminExpanded, setIsSuperadminExpanded] = useState(true);
 
   // Subsecciones de Superadmin

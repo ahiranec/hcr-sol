@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { ImageUploader } from '../components/ImageUploader';
 import { OrderableList } from '../components/OrderableList';
-import { getHomeHero, updateHomeHeroHeadline, addHeroImage, removeHeroImage, reorderHeroImages } from '@/data/mocks';
+import { homeRepo } from '@/data/repos/homeRepo';
 
 export function HomeManagerHero() {
-  const [hero, setHero] = useState(getHomeHero());
+  const [hero, setHero] = useState(homeRepo.getHomeHeroSync());
   const [headline, setHeadline] = useState(hero.headline);
   const [isSaving, setIsSaving] = useState(false);
   const [showImageUploader, setShowImageUploader] = useState(false);
@@ -14,7 +14,7 @@ export function HomeManagerHero() {
     setIsSaving(true);
     
     setTimeout(() => {
-      updateHomeHeroHeadline(headline);
+      homeRepo.updateHomeHeroHeadline(headline);
       setIsSaving(false);
       alert('✅ Headline guardado correctamente');
     }, 500);
@@ -22,15 +22,15 @@ export function HomeManagerHero() {
 
   const handleAddImage = (url: string | null) => {
     if (url) {
-      addHeroImage(url);
-      setHero(getHomeHero());
+      homeRepo.addHeroImage(url);
+      setHero(homeRepo.getHomeHeroSync());
       setShowImageUploader(false);
     }
   };
 
   const handleRemoveImage = (imageId: string) => {
-    removeHeroImage(imageId);
-    setHero(getHomeHero());
+    homeRepo.removeHeroImage(imageId);
+    setHero(homeRepo.getHomeHeroSync());
   };
 
   const handleReorderImages = (items: any[]) => {
@@ -38,8 +38,8 @@ export function HomeManagerHero() {
       const img = hero.carousel_images.find(i => i.id === item.id)!;
       return { ...img, order: index + 1 };
     });
-    reorderHeroImages(reordered);
-    setHero(getHomeHero());
+    homeRepo.reorderHeroImages(reordered);
+    setHero(homeRepo.getHomeHeroSync());
   };
 
   return (

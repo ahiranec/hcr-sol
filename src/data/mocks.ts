@@ -480,10 +480,6 @@ export function canUserAdminProject(userEmail: string, userRole: HubRole, projec
 
 // OUT_OF_MVP (health monitoring removed from MVP scope)
 
-export function getProjectHealth(projectSlug: string): HealthStatus | null {
-  const metrics = mockProjectMetricsDaily.find(m => m.project_slug === projectSlug);
-  return metrics?.health_status ?? null;
-}
 
 // ==========================================
 // STAGE 4: SSO LIGHT MOCKS (MOCK LEVEL 0)
