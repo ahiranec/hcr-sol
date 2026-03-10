@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { Navigate } from 'react-router';
-import { getCurrentUser, canAccessSuperadminTab } from '@/data/mocks';
+import { authRepo } from '@/data/repos/authRepo';
+import { profilesRepo } from '@/data/repos/profilesRepo';
 
 interface RequirePermissionProps {
   children: ReactNode;
@@ -8,7 +9,7 @@ interface RequirePermissionProps {
 }
 
 export function RequirePermission({ children, requireSuperadmin = false }: RequirePermissionProps) {
-  const user = getCurrentUser();
+  const user = authRepo.getCurrentUserSync();
 
   // Si no hay usuario, redirigir a login
   if (!user) {
@@ -22,7 +23,7 @@ export function RequirePermission({ children, requireSuperadmin = false }: Requi
 
   // Si requiere acceso a Superadmin
   if (requireSuperadmin) {
-    if (!canAccessSuperadminTab(user)) {
+    if (!profilesRepo.canAccessSuperadminTabSync(user)) {
       return <Navigate to="/hub" replace />;
     }
   }

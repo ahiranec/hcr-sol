@@ -1,5 +1,5 @@
 import { Navigate, useLocation } from 'react-router';
-import { getCurrentUser } from '@/data/mocks';
+import { authRepo } from '@/data/repos/authRepo';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -7,7 +7,7 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const location = useLocation();
-  const user = getCurrentUser();
+  const user = authRepo.getCurrentUserSync();
 
   // Si no hay usuario autenticado, redirigir a login
   if (!user) {

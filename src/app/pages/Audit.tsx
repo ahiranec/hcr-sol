@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
-import { getCurrentUser, mockAuditLog, mockUiState } from '@/data/mocks';
+import { authRepo } from '@/data/repos/authRepo';
+import { auditRepo } from '@/data/repos/auditRepo';
 
 export function Audit() {
   const [isLoading, setIsLoading] = useState(true);
-  const user = getCurrentUser();
+  const user = authRepo.getCurrentUserSync();
 
   // Simular carga
   useEffect(() => {
@@ -16,7 +17,7 @@ export function Audit() {
   }, []);
 
   // Estado de carga
-  if (isLoading || mockUiState.loading) {
+  if (isLoading || authRepo.getUiState().loading) {
     return (
       <div className="flex items-center justify-center py-24">
         <div className="text-center">
@@ -28,7 +29,7 @@ export function Audit() {
   }
 
   // Estado de error genérico
-  if (mockUiState.error) {
+  if (authRepo.getUiState().error) {
     return (
       <div className="flex items-center justify-center py-24">
         <div className="text-center max-w-md px-4">
@@ -85,7 +86,7 @@ export function Audit() {
   }
 
   // Lista de eventos (superadmin only)
-  const events = mockAuditLog || [];
+  const events = auditRepo.getAuditLogsSync() || [];
 
   // Estado empty
   if (events.length === 0) {

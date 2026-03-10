@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { Plus } from 'lucide-react';
-import { mockProjects, type MockProject } from '@/data/mocks';
+import { projectsRepo, type MockProject } from '@/data/repos/projectsRepo';
 import { ProjectCardMobile } from '../components/ProjectCardMobile';
 import { ProjectTableRow } from '../components/ProjectTableRow';
 
 export function HubProjectManagerLista() {
-  const [projects, setProjects] = useState(mockProjects);
+  const [projects, setProjects] = useState(projectsRepo.getMockProjectsSync());
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
 
   const handleDelete = (slug: string) => {
@@ -16,11 +16,11 @@ export function HubProjectManagerLista() {
   const confirmDelete = () => {
     if (!showDeleteConfirm) return;
     
-    // Simular eliminación (solo en el estado local, NO modificar mockProjects)
+    // Simular eliminación (solo en el estado local, NO modificar projectsRepo.getMockProjectsSync())
     const updatedProjects = projects.filter(p => p.slug !== showDeleteConfirm);
     setProjects(updatedProjects);
     
-    // NO modificar mockProjects - en producción esto sería una llamada a API
+    // NO modificar projectsRepo.getMockProjectsSync() - en producción esto sería una llamada a API
     // que actualizaría la base de datos, no el array local
     
     alert(`✅ Proyecto "${showDeleteConfirm}" eliminado correctamente (simulación)`);

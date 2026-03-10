@@ -2,21 +2,22 @@ import { Link, useParams, useNavigate } from 'react-router';
 import { Badge } from '../components/Badge';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 import { MainLayout } from '../components/MainLayout';
-import { MOCK_PROJECTS, PROJECT_COPY, mockUiState, getCurrentUser, mockLogout } from '@/data/mocks';
+import { projectsRepo } from '@/data/repos/projectsRepo';
+import { authRepo } from '@/data/repos/authRepo';
 import hcrSolLogo from '@/assets/4cc5722396a543fc4af4b21d4f57e4ae31cf2825.png';
 
 export function PublicProjectDetail() {
   const navigate = useNavigate();
   const { slug } = useParams<{ slug: string }>();
-  const user = getCurrentUser();
+  const user = authRepo.getCurrentUserSync();
 
   const handleLogout = () => {
-    mockLogout();
+    authRepo.logout();
     navigate('/');
   };
 
   // Estados simulados
-  if (mockUiState.loading) {
+  if (authRepo.getUiState().loading) {
     return (
       <div className="min-h-screen bg-white">
         <header className="bg-white border-b border-gray-200">
@@ -40,7 +41,7 @@ export function PublicProjectDetail() {
     );
   }
 
-  if (mockUiState.error) {
+  if (authRepo.getUiState().error) {
     return (
       <div className="min-h-screen bg-white">
         <header className="bg-white border-b border-gray-200">
@@ -69,7 +70,7 @@ export function PublicProjectDetail() {
     );
   }
 
-  const project = MOCK_PROJECTS.find(p => p.slug === slug);
+  const project = projectsRepo.getPublicProjectsSync().find(p => p.slug === slug);
 
   if (!project) {
     return (
@@ -87,7 +88,7 @@ export function PublicProjectDetail() {
     );
   }
 
-  const copy = PROJECT_COPY[project.slug];
+  const copy = projectsRepo.getProjectCopySync()[project.slug];
 
   return (
     <div className="min-h-screen bg-white">

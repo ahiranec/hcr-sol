@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { ImageUploader } from '../components/ImageUploader';
-import { getHomeBranding, updateHomeBranding } from '@/data/mocks';
+import { homeRepo } from '@/data/repos/homeRepo';
 
 export function HomeManagerBranding() {
-  const [branding, setBranding] = useState(getHomeBranding());
+  const [branding, setBranding] = useState(homeRepo.getHomeBrandingSync());
   const [isSaving, setIsSaving] = useState(false);
 
   const handleSave = () => {
@@ -11,7 +11,7 @@ export function HomeManagerBranding() {
     
     // Simular guardado
     setTimeout(() => {
-      updateHomeBranding(branding);
+      homeRepo.updateHomeBranding(branding);
       setIsSaving(false);
       alert('✅ Branding guardado correctamente');
     }, 500);

@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
-import { getCurrentUser, getAllUsers, mockUiState } from '@/data/mocks';
+import { authRepo } from '@/data/repos/authRepo';
+import { profilesRepo } from '@/data/repos/profilesRepo';
 
 export function Users() {
   const [isLoading, setIsLoading] = useState(true);
-  const user = getCurrentUser();
+  const user = authRepo.getCurrentUserSync();
 
   // Simular carga
   useEffect(() => {
-    if (mockUiState.loading) {
-      return; // Dejar en loading indefinidamente si mockUiState.loading = true
+    if (authRepo.getUiState().loading) {
+      return; // Dejar en loading indefinidamente si authRepo.getUiState().loading = true
     }
     
     const timer = setTimeout(() => {
@@ -36,8 +37,8 @@ export function Users() {
     );
   }
 
-  // Error state (si mockUiState.error = true)
-  if (mockUiState.error) {
+  // Error state (si authRepo.getUiState().error = true)
+  if (authRepo.getUiState().error) {
     return (
       <div className="text-center py-12">
         <p className="text-red-600">Error al cargar los usuarios</p>
@@ -51,8 +52,8 @@ export function Users() {
     );
   }
 
-  // Lista de usuarios (superadmin only) - ACTUALIZADO para usar getAllUsers()
-  const users = getAllUsers();
+  // Lista de usuarios (superadmin only) - ACTUALIZADO para usar profilesRepo.getAllUsersSync()
+  const users = profilesRepo.getAllUsersSync();
 
   // Estado empty
   if (users.length === 0) {

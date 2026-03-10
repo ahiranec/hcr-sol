@@ -1,4 +1,4 @@
-import { getCurrentUser, mockLogout } from '@/data/mocks';
+import { authRepo } from '@/data/repos/authRepo';
 import { useNavigate, Link } from 'react-router';
 import { MainLayout } from './MainLayout';
 import logoHcrSol from '@/assets/625b2cf11ebb3c2f863a2aa4fa2597622a07d6ca.png';
@@ -9,10 +9,10 @@ interface HubLayoutProps {
 
 export function HubLayout({ children }: HubLayoutProps) {
   const navigate = useNavigate();
-  const user = getCurrentUser();
+  const user = authRepo.getCurrentUserSync();
 
   const handleLogout = () => {
-    mockLogout();
+    authRepo.logout();
     navigate('/');
   };
 

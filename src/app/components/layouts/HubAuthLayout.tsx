@@ -1,15 +1,15 @@
 import { Outlet, useNavigate, Link } from 'react-router';
-import { getCurrentUser, mockLogout } from '@/data/mocks';
+import { authRepo } from '@/data/repos/authRepo';
 import { MainLayout } from '../MainLayout';
 import { HubTabs } from '../navigation/HubTabs';
 import hcrSolLogo from '@/assets/4cc5722396a543fc4af4b21d4f57e4ae31cf2825.png';
 
 export function HubAuthLayout() {
   const navigate = useNavigate();
-  const user = getCurrentUser();
+  const user = authRepo.getCurrentUserSync();
 
   const handleLogout = () => {
-    mockLogout();
+    authRepo.logout();
     navigate('/');
   };
 

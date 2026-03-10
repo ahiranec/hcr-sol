@@ -1,4 +1,4 @@
-import { type MockProject } from '@/data/mocks';
+import { type MockProject } from '@/data/repos/projectsRepo';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { ProjectStatusBadge } from './ProjectStatusBadge';
 import { ProjectActionsMenu } from './ProjectActionsMenu';

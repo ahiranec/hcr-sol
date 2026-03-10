@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router';
 import { UserForm, type UserFormData } from '../components/UserForm';
-import { createUser, getAllUsers } from '@/data/mocks';
+import { profilesRepo } from '@/data/repos/profilesRepo';
 import { ArrowLeft } from 'lucide-react';
 
 export function UsersManagerCrear() {
@@ -8,14 +8,14 @@ export function UsersManagerCrear() {
 
   const handleSubmit = (data: UserFormData) => {
     // Verificar que no exista un usuario con el mismo email
-    const exists = getAllUsers().find(u => u.email.toLowerCase() === data.email.toLowerCase());
+    const exists = profilesRepo.getAllUsersSync().find(u => u.email.toLowerCase() === data.email.toLowerCase());
     if (exists) {
       alert('❌ Ya existe un usuario con ese email');
       return;
     }
 
     // Crear nuevo usuario
-    createUser({
+    profilesRepo.createUser({
       email: data.email,
       full_name: data.full_name,
       username: data.username.trim() || null,
